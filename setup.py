@@ -41,7 +41,6 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3 :: Only',
-        'Operating System :: Unix',
     ],
     python_requires='>=3.9.0',
     entry_points={
