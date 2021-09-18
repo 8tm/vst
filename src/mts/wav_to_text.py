@@ -25,12 +25,12 @@ def parse_arguments() -> argparse.Namespace:
         help='Path to the folder where training and validation files will be saved',
     )
     parser.add_argument(
-        '-p', '--percent', action='store', required=False, type=int,
-        help='Path to folder with WAVs files', default=5,
+        '-p', '--percent', action='store', required=False, type=int, default=5,
+        help='Path to folder with WAVs files',
     )
     parser.add_argument(
         '-r', '--recursive', action='store_true', required=False,
-        help='Find files in source path and its subdirectories',
+        help='Find files also in subdirectories of input path',
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', required=False,
@@ -90,6 +90,10 @@ def save_content_to_file(path: Path, content: str) -> None:
 
 def wav_to_text() -> None:
     arguments = parse_arguments()
+    if arguments.percent < 1 or arguments.percent > 99:
+        print('The value of param "percent" should be between 1 and 99 percent')
+        exit(1)
+
     pattern = '*.wav'
 
     if arguments.recursive:
