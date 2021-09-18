@@ -73,9 +73,9 @@ Currently supported languages:
 - German
 
 #### -p / --percent
-Description: Set validation percentage (1-99 percent) to change number of lines which will moved from training file to validation file. 
-Required: No
-Default: 5%
+Description: Set validation percentage (1-99 percent) to change number of lines which will moved from training file to validation file.<br> 
+Required: No<br>
+Default: 5%<br>
 
 #### -v / --verbose
 Description: Print information for user.<br> 
