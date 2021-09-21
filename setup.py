@@ -16,8 +16,6 @@ setuptools.setup(
         'pydub==0.25.1',
         'SpeechRecognition==3.8.1',
         'ffmpeg-python==0.2.0',
-        'gTTS==2.2.2',
-        'eyed3==0.9.6',
     ],
     extras_require={
         'tests': [
@@ -46,6 +44,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'mts_wav_to_text = mts.wav_to_text:main',
+            'mts_audio_to_wav = mts.audio_to_wav:main',
         ],
     },
 )

@@ -7,6 +7,7 @@ import speech_recognition as sr  # type: ignore
 from pydub import AudioSegment  # type: ignore
 
 from mts.classes.languages import LanguageToLanguageTag  # type: ignore
+from mts.classes.shell import Shell
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -34,7 +35,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', required=False,
-        help='Show more information',
+        help='Show information while the script is running',
     )
     return parser.parse_args()
 
@@ -94,13 +95,9 @@ def wav_to_text() -> None:
         print('The value of param "percent" should be between 1 and 99 percent')
         exit(1)
 
-    pattern = '*.wav'
-
-    if arguments.recursive:
-        pattern = '**/*.wav'
-
-    wav_files = sorted(Path(arguments.input).glob(pattern))
-    training_files, validation_files = split_files_for_training_and_validation(wav_files, arguments.percent)
+    shell = Shell()
+    wav_files_paths = shell.get_files_by_extensions(arguments.input, ['wav'], arguments.recursive)
+    training_files, validation_files = split_files_for_training_and_validation(wav_files_paths, arguments.percent)
 
     operations = {
         'training': training_files,
@@ -129,7 +126,7 @@ def main() -> None:
     try:
         wav_to_text()
     except KeyboardInterrupt:
-        print(' <= Ended by user\n')
+        print(' <= Application terminated by the user\n')
         exit(0)
 
 
