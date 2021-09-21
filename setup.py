@@ -37,10 +37,12 @@ setuptools.setup(
     },
     classifiers=[
         'Intended Audience :: Developers',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    python_requires='>=3.9.0',
+    python_requires='>=3.7.4',
     entry_points={
         'console_scripts': [
             'mts_wav_to_text = mts.wav_to_text:main',
