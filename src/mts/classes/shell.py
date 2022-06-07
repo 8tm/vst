@@ -3,7 +3,7 @@ import shutil
 from contextlib import contextmanager
 from pathlib import Path
 
-from mts.classes.process import Process, ProcessResult
+from mts.classes.process import Process, ProcessResult  # type: ignore
 
 _PROCESS_FAILED = 'Shell command failed with exit code: {} \nError message: \n{}.'
 
@@ -66,6 +66,6 @@ class Shell(Process):
             file.write(content)
 
     @staticmethod
-    def get_files_by_extensions(path, extensions, recursive):
+    def get_files_by_extensions(path: str, extensions: str, recursive: bool = False) -> list:
         pattern = '**/*' if recursive else '*'
         return sum([sorted(Path(path).glob(f'{pattern}.{extension}')) for extension in extensions], [])

@@ -30,4 +30,3 @@ def test_not_existing_language() -> None:
     language = LanguageToLanguageTag(language_name='UFO')
     result = str(language)
     assert result == 'pl-PL'
-

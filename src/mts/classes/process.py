@@ -11,6 +11,11 @@ class ProcessResult(NamedTuple):
     error_message: str
 
 
+class ProcessTimeoutError(Exception):
+    def __init__(self, command: str):
+        super().__init__(_TIMEOUT_MESSAGE.format(command))
+
+
 class Process:  # pylint: disable=too-few-public-methods
     __slots__ = ('_shell_process', )
 
@@ -25,6 +30,6 @@ class Process:  # pylint: disable=too-few-public-methods
             stdout, stderr = self._shell_process.communicate(timeout=_SHELL_TIMEOUT)
         except TimeoutError:
             self._shell_process.kill()
-            raise _TIMEOUT_MESSAGE.format(command)
+            raise ProcessTimeoutError(command)
 
         return ProcessResult(stdout=stdout, exit_code=self._shell_process.returncode, error_message=stderr)

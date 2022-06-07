@@ -7,7 +7,7 @@ import speech_recognition as sr  # type: ignore
 from pydub import AudioSegment  # type: ignore
 
 from mts.classes.languages import LanguageToLanguageTag  # type: ignore
-from mts.classes.shell import Shell
+from mts.classes.shell import Shell  # type: ignore
 
 
 def parse_arguments() -> argparse.Namespace:
