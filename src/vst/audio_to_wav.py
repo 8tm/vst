@@ -2,8 +2,7 @@ import argparse
 from pathlib import Path
 
 import ffmpeg  # type: ignore
-
-from mts.classes.shell import Shell  # type: ignore
+from vst.classes.shell import Shell  # type: ignore
 
 
 def parse_arguments() -> argparse.Namespace:

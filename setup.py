@@ -3,12 +3,12 @@ import setuptools
 
 version = datetime.datetime.now().strftime('%y.%-m.%-d')
 setuptools.setup(
-    name='mts',
+    name='vst',
     version=version,
     author='Tadeusz Miszczyk',
     author_email='tadeusz.miszczyk@gmail.com',
-    description=('Useful scripts for Mekatron project',),
-    url='https://github.com/8tm/mts',
+    description=('VST - Voice Simple Tools',),
+    url='https://github.com/8tm/vst',
     package_dir={'': 'src'},
     packages=setuptools.find_namespace_packages(where='src'),
     include_package_data=True,
@@ -46,8 +46,8 @@ setuptools.setup(
     python_requires='>=3.7.4',
     entry_points={
         'console_scripts': [
-            'mts_wav_to_text = mts.wav_to_text:main',
-            'mts_audio_to_wav = mts.audio_to_wav:main',
+            'vst_wav_to_text = vst.wav_to_text:main',
+            'vst_audio_to_wav = vst.audio_to_wav:main',
         ],
     },
 )

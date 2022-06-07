@@ -3,7 +3,7 @@ import shutil
 from contextlib import contextmanager
 from pathlib import Path
 
-from mts.classes.process import Process, ProcessResult  # type: ignore
+from vst.classes.process import Process, ProcessResult  # type: ignore
 
 _PROCESS_FAILED = 'Shell command failed with exit code: {} \nError message: \n{}.'
 

@@ -1,6 +1,5 @@
 import pytest
-
-from mts.classes.languages import LanguageToLanguageTag  # type: ignore
+from vst.classes.languages import LanguageToLanguageTag  # type: ignore
 
 languages_tags = [
     ('English', 'en-GB'),
