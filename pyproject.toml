@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vst"
-version = "22.06.07-2"
+version = "22.06.11-4"
 description = "VST - Voice Simple Tools"
 authors = ["Tadeusz Miszczyk <42252259+8tm@users.noreply.github.com>"]
 homepage = "http://github.com/8tm/vst"
