@@ -1,3 +1,3 @@
-# MTS (MekaTron Scripts)
+# VST (Voice Simple Tools)
 
-Please check [WIKI](https://github.com/8tm/mts/wiki) pages for project description.
+Please check [WIKI](https://github.com/8tm/vst/wiki) pages for project description.

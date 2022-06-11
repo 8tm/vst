@@ -25,7 +25,7 @@ def parse_arguments() -> argparse.Namespace:
         help='Path to the folder where training and validation files will be saved',
     )
     parser.add_argument(
-        '-p', '--percent', action='store', required=False, type=int, default=5,
+        '-p', '--percent', action='store', required=False, type=int, default=0,
         help='Path to folder with WAVs files',
     )
     parser.add_argument(
@@ -41,8 +41,8 @@ def parse_arguments() -> argparse.Namespace:
 
 def split_files_for_training_and_validation(files: List[Path], percent: int) -> Tuple[List[Path], List[Path]]:
     list_of_files = list(files)
-    number_of_files = int((len(list_of_files) / 100) * percent + 0.5)
-    number_of_validation_files = number_of_files if number_of_files > 2 else 2
+    number_of_training_files = int((len(list_of_files) / 100) * percent + 0.5)
+    number_of_validation_files = number_of_training_files if number_of_training_files > 2 else 2
     return list_of_files[number_of_validation_files:len(list_of_files)], list_of_files[:number_of_validation_files]
 
 
@@ -90,13 +90,18 @@ def save_content_to_file(path: Path, content: str) -> None:
 
 def wav_to_text() -> None:
     arguments = parse_arguments()
-    if arguments.percent < 1 or arguments.percent > 99:
-        print('The value of param "percent" should be between 1 and 99 percent')
-        exit(1)
 
     shell = Shell()
     wav_files_paths = shell.get_files_by_extensions(arguments.input, ['wav'], arguments.recursive)
-    training_files, validation_files = split_files_for_training_and_validation(wav_files_paths, arguments.percent)
+
+    if arguments.percent == 0:
+        training_files = wav_files_paths
+        validation_files = []
+    elif 0 < arguments.percent < 100:
+        training_files, validation_files = split_files_for_training_and_validation(wav_files_paths, arguments.percent)
+    else:
+        print('The value of param "percent" should be between 0 and 99 percent')
+        exit(2)
 
     operations = {
         'training': training_files,
@@ -112,13 +117,17 @@ def wav_to_text() -> None:
         \r              Recursive: {'Yes' if arguments.recursive else 'No'}'''
         print(message)
 
+    if not Path(arguments.output).exists():
+        shell.mkdir(arguments.output, parent=True)
+
     for operation in operations:
         files = operations[operation]
-        if arguments.verbose:
-            print(f'\n => Converting {operation} files ({len(files)} files)')
-        dialogs = get_dialogs_from_files(files, arguments.language, arguments.verbose)
-        file_content = convert_dialogs_to_file_content(dialogs)
-        save_content_to_file(Path(arguments.output) / f'{operation}.txt', file_content)
+        if len(files) > 0:
+            if arguments.verbose:
+                print(f'\n => Converting {operation} files ({len(files)} files)')
+            dialogs = get_dialogs_from_files(files, arguments.language, arguments.verbose)
+            file_content = convert_dialogs_to_file_content(dialogs)
+            save_content_to_file(Path(arguments.output) / f'{operation}.txt', file_content)
 
 
 def main() -> None:

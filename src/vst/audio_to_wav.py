@@ -53,6 +53,9 @@ def audio_to_wav():
         '''
         print(message)
 
+    if not Path(arguments.output).exists():
+        shell.mkdir(arguments.output, parent=True)
+
     for index, path in enumerate(audio_files_paths, start=1):
         relative_path_to_file = Path(str(path).replace(str(arguments.input), '').strip('/')).with_suffix('.wav')
         full_path_to_file = arguments.output / relative_path_to_file
