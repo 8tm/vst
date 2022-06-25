@@ -64,6 +64,7 @@ def download_translation(download_path: Path, url_path: str = 'default'):
     r = requests.get(url, allow_redirects=True)
 
     shell = Shell()
+    shell.rmtree(str(download_path))
     shell.mkdir(path=str(download_path))
 
     with open(f'{download_path}/downloaded_en_to_pl.py', 'w') as translation_file:
