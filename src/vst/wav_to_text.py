@@ -21,6 +21,10 @@ def parse_arguments() -> argparse.Namespace:
         help='Language name. Read README.md file to know all languages',
     )
     parser.add_argument(
+        '-m', '--multi', action='store_true', required=False, default=False,
+        help='Generate list with default voice ID == 0',
+    )
+    parser.add_argument(
         '-o', '--output', action='store', required=True, type=Path,
         help='Path to the folder where training and validation files will be saved',
     )
@@ -31,6 +35,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         '-r', '--recursive', action='store_true', required=False,
         help='Find files also in subdirectories of input path',
+    )
+    parser.add_argument(
+        '-s', '--short-paths', action='store_true', required=False, default=False,
+        help='Save short paths to files using only last folder name and filename',
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', required=False,
@@ -76,10 +84,18 @@ def get_dialogs_from_files(paths: List[Path], language: str, verbose: bool = Fal
     return dialogs
 
 
-def convert_dialogs_to_file_content(dialogs: Dict[Path, str]) -> str:
+def convert_dialogs_to_file_content(dialogs: Dict[Path, str], short_paths: bool = False, multi: bool = False) -> str:
     content = ''
+    multi_content = '|0' if multi else ''
+
     for dialog in dialogs:
-        content += f'{dialog}|{dialogs[dialog]}.\n'
+        if short_paths:
+            path = str(dialog).replace(str(dialog.parents[1]), '').lstrip('/')
+        else:
+            path = dialog
+
+        text = dialogs[dialog].replace('\n', '')
+        content += f'{path}|{text}.{multi_content}\n'
     return content
 
 
@@ -126,7 +142,7 @@ def wav_to_text() -> None:
             if arguments.verbose:
                 print(f'\n => Converting {operation} files ({len(files)} files)')
             dialogs = get_dialogs_from_files(files, arguments.language, arguments.verbose)
-            file_content = convert_dialogs_to_file_content(dialogs)
+            file_content = convert_dialogs_to_file_content(dialogs, arguments.short_paths, arguments.multi)
             save_content_to_file(Path(arguments.output) / f'{operation}.txt', file_content)
 
 

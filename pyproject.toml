@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vst"
-version = "22.06.25"
+version = "22.06.28"
 description = "VST - Voice Simple Tools"
 authors = ["Tadeusz Miszczyk <42252259+8tm@users.noreply.github.com>"]
 homepage = "http://github.com/8tm/vst"
@@ -52,9 +52,9 @@ pipdeptree = "^2.2.1"
 
 
 [tool.poetry.scripts]
-vst_wav_to_text = 'vst.wav_to_text:main'
-vst_audio_to_wav = 'vst.audio_to_wav:main'
-vst_en_to_pl = 'vst.en_to_pl:main'
+vst-wav-to-text = 'vst.wav_to_text:main'
+vst-audio-to-wav = 'vst.audio_to_wav:main'
+vst-en-to-pl = 'vst.en_to_pl:main'
 
 [tool.mypy]
 ignore_missing_imports = true
