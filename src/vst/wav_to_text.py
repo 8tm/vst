@@ -90,7 +90,7 @@ def convert_dialogs_to_file_content(dialogs: Dict[Path, str], short_paths: bool 
 
     for dialog in dialogs:
         if short_paths:
-            path = str(dialog).replace(str(dialog.parents[1]), '').lstrip('/')
+            path = str(dialog).replace(str(dialog.parents[1]), '').lstrip('/').lstrip('\\')
         else:
             path = dialog
 

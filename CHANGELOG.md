@@ -1,8 +1,24 @@
 # Change Log
 
 ## Unreleased
+
 ### Added
+
 ### Changed
+
+## 22.7.3
+
+### Added
+
+### Changed
+
+* Changed url to CHANGELOG.md file in README.md file
+* Added new line at the end of file README.md
+
+### Fixed
+
+* Fixed path to wav file (removed first "\\" from wav path)
+
 
 ## 22.7.1
 
