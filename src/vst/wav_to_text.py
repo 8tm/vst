@@ -1,17 +1,26 @@
 import argparse
+import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 import speech_recognition as sr  # type: ignore
 from pydub import AudioSegment  # type: ignore
+
+
 from vst.classes.languages import LanguageToLanguageTag  # type: ignore
 from vst.classes.shell import Shell  # type: ignore
+from vst.classes.wavfile import WavFile  # type: ignore
 
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
+    parser.add_argument(
+        '-e', '--error', action='store_true', required=False,
+        help='Delete files for which the transcription cannot be recognized',
+    )
     parser.add_argument(
         '-i', '--input', action='store', required=True, type=Path,
         help='Path to folder with WAVs files',
@@ -41,6 +50,10 @@ def parse_arguments() -> argparse.Namespace:
         help='Save short paths to files using only last folder name and filename',
     )
     parser.add_argument(
+        '-t', '--time', action='store', required=False, type=str,
+        help='Delete files that are outside the given time range (i.e: 2-12.5)',
+    )
+    parser.add_argument(
         '-v', '--verbose', action='store_true', required=False,
         help='Show information while the script is running',
     )
@@ -54,13 +67,52 @@ def split_files_for_training_and_validation(files: List[Path], percent: int) -> 
     return list_of_files[number_of_validation_files:len(list_of_files)], list_of_files[:number_of_validation_files]
 
 
-def get_text_from_wav_file(path: Path, language: str) -> str:
+def remove_if_file_duration_not_in_range(wav_file: WavFile, time_range: str):
+    time_range_examples_message = \
+        '  Examples:\n' \
+        '  -t 2-10        minimum: 2 seconds                     - maximum: 10 seconds\n' \
+        '  -t 2.10-10     minimum: 2 seconds and 100 miliseconds - maximum: 10 seconds\n' \
+        '  -t 2-10.3      minimum: 2 seconds                     - maximum: 10 seconds and 300 miliseconds\n' \
+        '  -t 2.5-10.4    minimum: 2 seconds and 500 miliseconds - maximum: 10 seconds and 400 miliseconds\n'
+
+    def wrong_number_of_time_range_elements(error: ValueError):
+        print(
+            f'\n  Error: {error}\n'
+            '\n  Solution: Format your time range using minimum and maximum time in one of formats:\n\n'
+            '  Format: \n      minimum_second[.miliseconds]-maximum_second[.miliseconds]\n\n'
+            f'{time_range_examples_message}'
+        )
+        sys.exit(1)
+
+    def wrong_order_of_time_range_elements():
+        print(
+            '\n  Error: The minimum time range must be less than the maximum time range.\n\n'
+            f'{time_range_examples_message}'
+        )
+        sys.exit(2)
+
+    minimum, maximum = -2, -1
+    try:
+        minimum, maximum = (float(seconds) for seconds in time_range.split('-'))
+    except ValueError as error:
+        wrong_number_of_time_range_elements(error)
+    except AttributeError as error:
+        print(error)
+
+    if (minimum > maximum) or (minimum == maximum):
+        wrong_order_of_time_range_elements()
+
+    if not minimum <= float(wav_file.get_file_duration()) <= maximum:
+        wav_file.path_to_wav_file.unlink()
+
+
+def get_text_from_wav_file(path: Path, language: str, error: bool = False) -> str:
     r = sr.Recognizer()
     language_tag = str(LanguageToLanguageTag(language))
     silence = AudioSegment.silent(duration=1000)
     wav_content = AudioSegment.from_wav(path)
     new_content = silence + wav_content + silence
-    path_to_temporary_file = Path(tempfile.gettempdir()) / 'temporary_wav_file.wav'
+    path_to_temporary_file = Path(tempfile.gettempdir()) / f'{str(uuid.uuid4())[-12:]}.wav'
     new_content.export(path_to_temporary_file, format='wav')
 
     with sr.AudioFile(str(path_to_temporary_file)) as file:
@@ -68,18 +120,34 @@ def get_text_from_wav_file(path: Path, language: str) -> str:
         try:
             text = r.recognize_google(audio, language=language_tag)
         except sr.UnknownValueError:
-            text = f"<< Text wasn't recognized! Are you sure that the language used in the wav file is {language} ? >>"
+            if error:
+                text = "<< Text wasn't recognized! File was removed!"
+                Path(path).unlink()
+            else:
+                text = f"<< Text wasn't recognized! Are you sure that the language used in the wav file is {language} ? >>"
 
     path_to_temporary_file.unlink()
     return text
 
 
-def get_dialogs_from_files(paths: List[Path], language: str, verbose: bool = False) -> Dict[Path, str]:
+def get_dialogs_from_files(paths: List[Path], arguments: argparse.Namespace) -> Dict[Path, str]:
     dialogs = {}
+    wav_file = WavFile()
+
     for index, path in enumerate(paths, start=1):
-        text = get_text_from_wav_file(Path(path), language)
-        if verbose:
-            print(f'{index:5}: {Path(path).name:50} {text}')
+        wav_file.open(path)
+        file_duration = wav_file.get_formatted_length()
+
+        if arguments.time:
+            remove_if_file_duration_not_in_range(wav_file, arguments.time)
+
+        if not path.exists():
+            print(f'{index:5}: {file_duration:14} {Path(path).name:50} FILE REMOVED!')
+            continue
+
+        text = get_text_from_wav_file(Path(path), arguments.language, arguments.error)
+        if arguments.verbose:
+            print(f'{index:5}: {file_duration:14} {Path(path).name:50} {text}')
         dialogs[Path(path)] = text
     return dialogs
 
@@ -141,7 +209,7 @@ def wav_to_text() -> None:
         if len(files) > 0:
             if arguments.verbose:
                 print(f'\n => Converting {operation} files ({len(files)} files)')
-            dialogs = get_dialogs_from_files(files, arguments.language, arguments.verbose)
+            dialogs = get_dialogs_from_files(files, arguments)
             file_content = convert_dialogs_to_file_content(dialogs, arguments.short_paths, arguments.multi)
             save_content_to_file(Path(arguments.output) / f'{operation}.txt', file_content)
 

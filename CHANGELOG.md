@@ -1,10 +1,17 @@
 # Change Log
 
 ## Unreleased
+### Added
+### Changed
+
+## 22.7.13
 
 ### Added
+* Added new option "error" for vst-wav-to-text
+* Added new option "time" for vst-wav-to-text
 
 ### Changed
+* Fixed wav temporary file name in vst-wav-to-text (now it's possible to run more than one instance of vst-wav-to-text)
 
 ## 22.7.3
 
